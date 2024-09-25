@@ -20,15 +20,6 @@
             font-size: 36px;
             color: #ffffff;
         }
-        /* New styles for the logo */
-        
-        .logo {
-            margin-top: 10px;
-            max-width: 200px;
-            /* Adjust as needed */
-            height: auto;
-            /* Maintain aspect ratio */
-        }
         
         .button-container {
             margin: 20px 0;
@@ -103,6 +94,7 @@
             display: flex;
             gap: 10px;
         }
+        /* Form styles */
         
         .add-record-form {
             display: none;
@@ -141,6 +133,7 @@
         
         .page-arrow:hover {
             background-color: #e67e22;
+            /* Slightly darker on hover */
         }
         
         .page-number {
@@ -162,16 +155,23 @@
             background-color: #ff8a00;
             color: white;
         }
+        
+        .logo {
+            margin-top: 10px;
+            max-width: 200px;
+            /* Adjust as needed */
+            height: auto;
+            /* Maintain aspect ratio */
+        }
     </style>
 </head>
 
 <body>
+
     <!-- Logo Image -->
     <img src="hub.png" alt="Logo" class="logo">
 
     <h1 id="dashboardTitle">User Management Dashboard</h1>
-
-
 
     <div class="button-container">
         <button id="addRecordButton" onclick="showAddRecordForm()"><i class="fas fa-user-plus"></i> Add Record</button>
@@ -225,6 +225,7 @@
         <button class="page-arrow" onclick="nextPage()"><i class="fas fa-chevron-right"></i></button>
     </div>
 
+
     <script>
         let users = JSON.parse(localStorage.getItem('users')) || [];
         const initialId = 2024001; // Starting ID for auto-increment
@@ -268,83 +269,91 @@
 
                 // Only show action buttons if the current user is an admin
                 if (currentUser && currentUser.role === 'Admin') {
-                    cell5.innerHTML = `
-                        <div class="action-buttons">
-                            <button onclick="editUser(${user.id})"><i class="fas fa-edit"></i> Edit</button>
-                            <button onclick="deleteUser(${user.id})"><i class="fas fa-trash-alt"></i> Delete</button>
-                        </div>`;
+                    const editButton = document.createElement('button');
+                    editButton.textContent = 'Edit';
+                    editButton.onclick = () => editUser(user.id);
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.onclick = () => deleteUser(user.id);
+                    const actionDiv = document.createElement('div');
+                    actionDiv.className = 'action-buttons';
+                    actionDiv.appendChild(editButton);
+                    actionDiv.appendChild(deleteButton);
+                    cell5.appendChild(actionDiv);
                 } else {
-                    cell5.innerHTML = ''; // No action buttons for non-admin users
+                    // Hide the entire actions cell if not admin
+                    cell5.style.display = 'none';
                 }
             });
         }
 
+        function showAddRecordForm() {
+            const addRecordForm = document.getElementById('addRecordForm');
+            addRecordForm.style.display = (addRecordForm.style.display === 'none' || addRecordForm.style.display === '') ? 'block' : 'none';
+        }
+
         function submitRecord() {
-            const fullname = document.getElementById('fullName').value;
+            const fullName = document.getElementById('fullName').value;
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const role = document.getElementById('role').value;
 
-            const newUser = {
-                id: initialId + users.length,
-                fullname,
-                username,
-                password,
-                role,
-            };
+            if (!fullName || !username || !password) {
+                alert('Please fill all fields');
+                return;
+            }
 
-            users.push(newUser);
+            const newId = users.length > 0 ? users[users.length - 1].id + 1 : initialId;
+            users.push({
+                id: newId,
+                fullname: fullName,
+                username: username,
+                password: password,
+                role: role
+            });
             localStorage.setItem('users', JSON.stringify(users));
-            displayUsers();
-            clearForm();
-        }
 
-        function clearForm() {
             document.getElementById('fullName').value = '';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('role').value = 'User';
-            document.getElementById('addRecordForm').style.display = 'none';
+
+            displayUsers();
+            showAddRecordForm(); // Hide form after submitting
         }
 
-        function showAddRecordForm() {
-            document.getElementById('addRecordForm').style.display = 'flex';
-        }
-
-        function searchUsers() {
-            const searchInput = document.getElementById('search').value.toLowerCase();
-            const filteredUsers = users.filter(user => user.fullname.toLowerCase().includes(searchInput));
-            displayUsers(filteredUsers);
-        }
-
-        function editUser(userId) {
-            const userToEdit = users.find(user => user.id === userId);
+        function editUser(id) {
+            const userToEdit = users.find(user => user.id === id);
             if (userToEdit) {
                 document.getElementById('fullName').value = userToEdit.fullname;
                 document.getElementById('username').value = userToEdit.username;
-                document.getElementById('password').value = ''; // Optional to keep password empty
+                document.getElementById('password').value = userToEdit.password;
                 document.getElementById('role').value = userToEdit.role;
-                document.getElementById('addRecordForm').style.display = 'flex';
+                showAddRecordForm(); // Show form to edit
+                deleteUser(id); // Optionally delete the user to replace them with updated data
             }
         }
 
-        function deleteUser(userId) {
-            users = users.filter(user => user.id !== userId);
+        function deleteUser(id) {
+            users = users.filter(user => user.id !== id);
             localStorage.setItem('users', JSON.stringify(users));
             displayUsers();
         }
 
+        function searchUsers() {
+            const searchQuery = document.getElementById('search').value.toLowerCase();
+            const filteredUsers = users.filter(user =>
+                user.fullname.toLowerCase().includes(searchQuery) ||
+                user.username.toLowerCase().includes(searchQuery) ||
+                user.role.toLowerCase().includes(searchQuery)
+            );
+            displayUsers(filteredUsers);
+        }
+
         function logout() {
             localStorage.removeItem('loggedInUser');
-            window.location.href = 'index.html'; // Redirect to login page
-        }
-
-        function previousPage() {
-            // Logic for previous page
-        }
-
-        function nextPage() {
-            // Logic for next page
+            // Redirect to login page or handle logout accordingly
+            window.location.href = 'index.html'; // Update with your login page
         }
     </script>
 </body>
