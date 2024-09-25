@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: rgb(0, 0, 0);
+        }
+        
+        h1 {
+            margin-top: 20px;
+            font-size: 36px;
+            color: white;
+            /* Change text color for better contrast */
+        }
+        
+        input {
+            padding: 10px;
+            width: 80%;
+            max-width: 400px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        button {
+            padding: 10px 40px;
+            /* Increased width */
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            background-color: #ff8a00;
+            /* Added background color for button */
+            border: none;
+            /* Remove border */
+            color: black;
+            /* Button text color */
+            border-radius: 5px;
+            /* Rounded corners */
+        }
+        
+        button:hover {
+            background-color: deepskyblue;
+            /* Change button color on hover */
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Login | HUB</h1>
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <br>
+    <button onclick="login()">Login</button>
+
+    <script>
+        // Initialize admin user if it doesn't exist
+        function initializeAdminUser() {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const adminUser = users.find(user => user.username === 'admin');
+
+            if (!adminUser) {
+                users.push({
+                    id: 2024001,
+                    fullname: 'Admin User',
+                    username: 'admin',
+                    password: 'admin123',
+                    role: 'Admin'
+                });
+                localStorage.setItem('users', JSON.stringify(users)); // Save to local storage
+            }
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+
+            // Check if the username and password match
+            const user = users.find(user => user.username === username && user.password === password);
+
+            if (user) {
+                // Set the logged-in user in local storage
+                localStorage.setItem('loggedInUser', username);
+                // Redirect to dashboard
+                window.location.href = 'dashboard.html'; // Ensure this file exists
+            } else {
+                alert('Invalid username or password!');
+            }
+        }
+
+        // Call to initialize the admin user on page load
+        initializeAdminUser();
+    </script>
+
+</body>
+
+</html>

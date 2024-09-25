@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+        }
+        
+        h1 {
+            margin-top: 20px;
+            font-size: 36px;
+            color: #ffffff;
+        }
+        /* New styles for the logo */
+        
+        .logo {
+            margin-top: 10px;
+            max-width: 200px;
+            /* Adjust as needed */
+            height: auto;
+            /* Maintain aspect ratio */
+        }
+        
+        .button-container {
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            background-color: #ff8a00;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #ff8a00;
+        }
+        
+        .search-bar {
+            margin: 20px auto;
+            position: relative;
+            width: 80%;
+            max-width: 400px;
+        }
+        
+        .search-bar input {
+            padding: 10px 40px 10px 20px;
+            width: 100%;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        .search-bar i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #888;
+        }
+        
+        .user-table {
+            margin: 30px auto;
+            width: 80%;
+            max-width: 800px;
+            border-collapse: collapse;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        
+        .user-table th,
+        .user-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .user-table th {
+            background-color: #ff8a00;
+            color: white;
+        }
+        
+        .user-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .add-record-form {
+            display: none;
+            margin: 20px auto;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .add-record-form input,
+        .add-record-form select {
+            padding: 10px;
+            width: 80%;
+            max-width: 400px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .page-arrow {
+            background-color: #ff8a00;
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .page-arrow:hover {
+            background-color: #e67e22;
+        }
+        
+        .page-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            margin: 0 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            color: #333;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .page-number:hover {
+            background-color: #ff8a00;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Logo Image -->
+    <img src="hub.png" alt="Logo" class="logo">
+
+    <h1 id="dashboardTitle">User Management Dashboard</h1>
+
+
+
+    <div class="button-container">
+        <button id="addRecordButton" onclick="showAddRecordForm()"><i class="fas fa-user-plus"></i> Add Record</button>
+        <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="search" placeholder="Search users..." onkeyup="searchUsers()">
+        <i class="fas fa-search"></i>
+    </div>
+
+    <div class="add-record-form" id="addRecordForm">
+        <h3>Add/Edit User</h3>
+        <input type="text" id="fullName" placeholder="Full Name" required>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <select id="role">
+            <option value="User">User</option>
+            <option value="Admin">Admin</option>
+        </select>
+        <button onclick="submitRecord()">Submit</button>
+    </div>
+
+    <table class="user-table" id="userTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th id="actionsHeader">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Users will be populated here -->
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <button class="page-arrow" onclick="previousPage()"><i class="fas fa-chevron-left"></i></button>
+        <span class="page-number">1</span>
+        <span class="page-number">2</span>
+        <span class="page-number">3</span>
+        <span class="page-number">4</span>
+        <span class="page-number">5</span>
+        <span class="page-number">6</span>
+        <span class="page-number">7</span>
+        <span class="page-number">8</span>
+        <span class="page-number">9</span>
+        <span class="page-number">10</span>
+        <button class="page-arrow" onclick="nextPage()"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        const initialId = 2024001; // Starting ID for auto-increment
+
+        // Check if a user is logged in
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        const currentUser = users.find(user => user.username === loggedInUser);
+
+        // Set the dashboard title based on user role
+        const dashboardTitle = document.getElementById('dashboardTitle');
+        if (currentUser) {
+            dashboardTitle.textContent = currentUser.role === 'Admin' ? 'Admin Dashboard' : "Student's Dashboard";
+        }
+
+        // Display users immediately on load
+        displayUsers();
+
+        // Check user role and hide "Add Record" button and actions column if not admin
+        if (currentUser && currentUser.role !== 'Admin') {
+            document.getElementById('addRecordButton').style.display = 'none';
+            document.getElementById('addRecordForm').style.display = 'none'; // Hide form as well
+            document.getElementById('actionsHeader').style.display = 'none'; // Hide actions column header
+        }
+
+        function displayUsers(filteredUsers = users) {
+            const userTable = document.getElementById('userTable').getElementsByTagName('tbody')[0];
+            userTable.innerHTML = '';
+
+            filteredUsers.forEach(user => {
+                const row = userTable.insertRow();
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                const cell3 = row.insertCell(2);
+                const cell4 = row.insertCell(3);
+                const cell5 = row.insertCell(4);
+
+                cell1.textContent = user.id;
+                cell2.textContent = user.fullname;
+                cell3.textContent = user.username;
+                cell4.textContent = user.role;
+
+                // Only show action buttons if the current user is an admin
+                if (currentUser && currentUser.role === 'Admin') {
+                    cell5.innerHTML = `
+                        <div class="action-buttons">
+                            <button onclick="editUser(${user.id})"><i class="fas fa-edit"></i> Edit</button>
+                            <button onclick="deleteUser(${user.id})"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </div>`;
+                } else {
+                    cell5.innerHTML = ''; // No action buttons for non-admin users
+                }
+            });
+        }
+
+        function submitRecord() {
+            const fullname = document.getElementById('fullName').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            const newUser = {
+                id: initialId + users.length,
+                fullname,
+                username,
+                password,
+                role,
+            };
+
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            displayUsers();
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('fullName').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('role').value = 'User';
+            document.getElementById('addRecordForm').style.display = 'none';
+        }
+
+        function showAddRecordForm() {
+            document.getElementById('addRecordForm').style.display = 'flex';
+        }
+
+        function searchUsers() {
+            const searchInput = document.getElementById('search').value.toLowerCase();
+            const filteredUsers = users.filter(user => user.fullname.toLowerCase().includes(searchInput));
+            displayUsers(filteredUsers);
+        }
+
+        function editUser(userId) {
+            const userToEdit = users.find(user => user.id === userId);
+            if (userToEdit) {
+                document.getElementById('fullName').value = userToEdit.fullname;
+                document.getElementById('username').value = userToEdit.username;
+                document.getElementById('password').value = ''; // Optional to keep password empty
+                document.getElementById('role').value = userToEdit.role;
+                document.getElementById('addRecordForm').style.display = 'flex';
+            }
+        }
+
+        function deleteUser(userId) {
+            users = users.filter(user => user.id !== userId);
+            localStorage.setItem('users', JSON.stringify(users));
+            displayUsers();
+        }
+
+        function logout() {
+            localStorage.removeItem('loggedInUser');
+            window.location.href = 'index.html'; // Redirect to login page
+        }
+
+        function previousPage() {
+            // Logic for previous page
+        }
+
+        function nextPage() {
+            // Logic for next page
+        }
+    </script>
+</body>
+
+</html>
